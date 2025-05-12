@@ -19,6 +19,14 @@
       }
     ],
     "paths": {
+      "@providers/*": ["./src/providers/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@enums/*": ["./src/enums/*"],
+      "@constants/*": ["./src/constants/*"],
+      "@components/*": ["./src/components/*"],
+      "@icons/*": ["./src/assets/icons/*"],
+      "@fonts/*": ["./src/assets/fonts/*"],
+      "@styles/*": ["./src/styles/*"],
       "@/*": ["./src/*"]
     }
   },
