@@ -20,13 +20,11 @@
     ],
     "paths": {
       "@providers/*": ["./src/providers/*"],
-      "@lib/*": ["./src/lib/*"],
-      "@enums/*": ["./src/enums/*"],
-      "@constants/*": ["./src/constants/*"],
+      "@api/*": ["./src/app/api/*"],
+      "@actions/*": ["./src/actions/*"],
       "@components/*": ["./src/components/*"],
-      "@icons/*": ["./src/assets/icons/*"],
-      "@fonts/*": ["./src/assets/fonts/*"],
       "@styles/*": ["./src/styles/*"],
+      "@constants/*": ["./src/constants/*"],
       "@/*": ["./src/*"]
     }
   },
