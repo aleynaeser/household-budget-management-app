@@ -12,14 +12,14 @@ export default function Home() {
   });
 
   return (
-    <section className=''>
+    <section>
       <div className='p-10'>
-        <h1 className='text-center text-2xl font-thin'>
-          Household Budget Management <strong>with AI </strong>
+        <h1 className='text-center text-2xl font-extralight'>
+          Household Budget Management <span className='font-bold'>with AI</span>
         </h1>
 
-        <h2 className='pt-4 pb-10 text-center text-lg font-thin text-[var(--gray-light)]'>
-          <strong>Upload </strong>your credit card statement
+        <h2 className='pt-4 pb-10 text-center text-lg font-extralight text-[var(--gray-light)]'>
+          <span className='font-bold'>Upload </span>your credit card statement
         </h2>
 
         <div className='rounded-lg border-2 border-dashed border-[var(--black-light)] p-8 text-center'>
@@ -36,21 +36,34 @@ export default function Home() {
         </div>
       </div>
 
-      {isPending && (
-        <div className='pb-10 text-center text-sm text-[var(--green)]'>
-          <p>PDF analiz ediliyor...</p>
-        </div>
-      )}
+      {isPending && <div className='pb-10 text-center text-sm text-[var(--green)]'>PDF analiz ediliyor...</div>}
 
-      {/* {data && (
+      {data && (
         <div className=''>
-          <h3 className='border-b border-[var(--black-light)] px-10 pb-10 text-center text-lg font-thin text-[var(--off-white)]'>
-            <strong>Analysis </strong>Result
+          <h3 className='border-y border-[var(--black-light)] p-10 text-center text-2xl font-extralight text-[var(--off-white)]'>
+            <span className='font-bold'>Analysis </span>Result
           </h3>
 
-          <p className='p-10 whitespace-pre-wrap'>{data}</p>
+          <div className='px-10 pt-4 pb-10 whitespace-pre-wrap'>
+            {data.map((item, index) => (
+              <div key={index}>
+                <h4 className='py-8 text-2xl font-bold text-[var(--blue)] underline'>{item.title}</h4>
+
+                <ul className='space-y-2'>
+                  {item.content.map((content, index) => (
+                    <li
+                      key={index}
+                      className={`pb-3 leading-8 ${content.startsWith('**') ? 'text-lg font-bold text-[var(--magenta)]' : 'ml-4 list-disc'}`}
+                    >
+                      {content}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
-      )} */}
+      )}
     </section>
   );
 }

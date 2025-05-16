@@ -1,11 +1,10 @@
-import OpenAI from 'openai';
 import pdf from 'pdf-parse';
+import { GoogleGenAI } from '@google/genai';
 import { AI_PROMPT } from '@constants/ai-prompt';
 import { NextRequest, NextResponse } from 'next/server';
+import { responseSchema } from '@constants/response-schema';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const genai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,23 +20,17 @@ export async function POST(req: NextRequest) {
     const data = await pdf(buffer);
     const text = data.text;
 
-    const completion = await openai.chat.completions.create({
-      messages: [
-        {
-          role: 'system',
-          content: AI_PROMPT,
-        },
-        {
-          role: 'user',
-          content: text,
-        },
-      ],
-      model: 'gpt-3.5-turbo',
+    const result = await genai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: text,
+      config: {
+        systemInstruction: AI_PROMPT,
+        responseMimeType: 'application/json',
+        responseSchema: responseSchema,
+      },
     });
 
-    return NextResponse.json({
-      analysis: completion.choices[0].message.content,
-    });
+    return NextResponse.json(result.text);
   } catch (error) {
     console.error('PDF analiz hatası:', error);
     return NextResponse.json({ error: 'PDF analizi sırasında bir hata oluştu' }, { status: 500 });
