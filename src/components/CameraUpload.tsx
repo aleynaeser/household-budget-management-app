@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Camera, Upload, X } from 'lucide-react';
+import { Camera, Upload, X, RotateCcw } from 'lucide-react';
 
 export function CameraUpload({
   onImageCapture,
@@ -9,9 +9,11 @@ export function CameraUpload({
   isLoading = false,
 }: ICameraUploadProps & { isLoading?: boolean }) {
   const [showCamera, setShowCamera] = useState(false);
+  const [showFullscreenCamera, setShowFullscreenCamera] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [cameraPermission, setCameraPermission] = useState<'unknown' | 'granted' | 'denied' | 'prompt'>('unknown');
   const [showPermissionHelp, setShowPermissionHelp] = useState(false);
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -53,74 +55,48 @@ export function CameraUpload({
     try {
       // Önce kamera desteğini kontrol et
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Bu tarayıcı kamera erişimini desteklemiyor');
+        alert('Bu tarayıcı kamera erişimini desteklemiyor');
+        return;
       }
 
-      // Kamera izni iste - mobil cihazlar için optimize edilmiş
+      // Kamera izni iste
       const constraints = {
         video: {
-          facingMode: 'environment', // Arka kamera (mobilde daha iyi)
-          width: { ideal: 1280, max: 1920 },
-          height: { ideal: 720, max: 1080 },
-          frameRate: { ideal: 30, max: 60 },
+          facingMode: facingMode,
         },
-        audio: false, // Ses kaydına gerek yok
+        audio: false,
       };
-
-      // Mobil cihaz kontrolü
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-      if (isMobile) {
-        // Mobil cihazlarda daha basit ayarlar
-        constraints.video = {
-          facingMode: 'environment',
-          width: { ideal: 1280, max: 1280 },
-          height: { ideal: 720, max: 720 },
-          frameRate: { ideal: 30, max: 30 },
-        };
-      }
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        setShowCamera(true);
-      }
-    } catch (error) {
-      console.error('Kamera erişim hatası:', error);
+      // Önce kamera UI'ını göster, sonra video'yu bağla
+      setShowCamera(true);
 
-      // Hata türüne göre farklı mesajlar göster
+      // Kısa bir gecikme ile video ref'i kontrol et
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      }, 100);
+    } catch (error) {
       let errorMessage = 'Kamera erişimi başarısız oldu.';
-      let showMobileInstructions = false;
 
       if (error instanceof Error) {
         if (error.name === 'NotAllowedError') {
-          errorMessage = 'Kamera izni reddedildi.';
-          showMobileInstructions = true;
+          errorMessage = 'Kamera izni reddedildi. Lütfen tarayıcı ayarlarından kamera iznini verin.';
         } else if (error.name === 'NotFoundError') {
-          errorMessage = 'Kamera bulunamadı. Lütfen cihazınızda kamera olduğundan emin olun.';
+          errorMessage = 'Kamera bulunamadı.';
         } else if (error.name === 'NotSupportedError') {
           errorMessage = 'Bu tarayıcı kamera erişimini desteklemiyor.';
-        } else if (error.name === 'NotReadableError') {
-          errorMessage = 'Kamera başka bir uygulama tarafından kullanılıyor.';
         }
       }
 
-      // Mobil cihazlarda detaylı talimatlar göster
-      if (showMobileInstructions) {
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-        if (isMobile) {
-          // Mobil cihazlarda yardım panelini göster
-          setShowPermissionHelp(true);
-          alert(errorMessage + '\n\nDetaylı talimatlar için "Nasıl izin verilir?" butonuna tıklayın.');
-        } else {
-          alert(errorMessage + '\n\nLütfen tarayıcı ayarlarından kamera iznini verin.');
-        }
-      } else {
-        alert(errorMessage);
-      }
+      alert(errorMessage);
     }
+  };
+
+  const openFullscreenCamera = () => {
+    setShowFullscreenCamera(true);
   };
 
   const capturePhoto = () => {
@@ -150,12 +126,19 @@ export function CameraUpload({
     }
   };
 
-  const stopCamera = () => {
+  const switchCamera = async () => {
+    setFacingMode((prev) => (prev === 'environment' ? 'user' : 'environment'));
+    await stopCamera();
+    await startCamera();
+  };
+
+  const stopCamera = async () => {
     if (videoRef.current?.srcObject) {
       const stream = videoRef.current.srcObject as MediaStream;
       stream.getTracks().forEach((track) => track.stop());
     }
     setShowCamera(false);
+    setShowFullscreenCamera(false);
   };
 
   const resetPreview = () => {
@@ -183,16 +166,16 @@ export function CameraUpload({
     );
   }
 
-  if (showCamera) {
+  if (showCamera && !showFullscreenCamera) {
     return (
       <div className='space-y-4'>
-        <div className='relative'>
+        <div className='relative mx-auto max-w-md'>
           <video
             ref={videoRef}
             autoPlay
             playsInline
             muted
-            className='mx-auto w-full max-w-md rounded-lg'
+            className='h-64 w-full rounded-lg object-cover'
             style={{
               transform: 'scaleX(-1)', // Ayna efekti
               WebkitTransform: 'scaleX(-1)', // Safari desteği
@@ -203,16 +186,107 @@ export function CameraUpload({
 
         <div className='flex justify-center space-x-4'>
           <button
-            onClick={capturePhoto}
-            disabled={isLoading}
-            className='flex items-center space-x-2 rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700 disabled:opacity-50'
+            onClick={openFullscreenCamera}
+            className='flex items-center space-x-2 rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700'
           >
             <Camera className='h-5 w-5' />
-            <span>Fotoğraf Çek</span>
+            <span>Tam Ekran Çek</span>
           </button>
 
-          <button onClick={stopCamera} className='rounded-lg bg-gray-600 px-6 py-3 text-white hover:bg-gray-700'>
-            İptal
+          <button
+            onClick={capturePhoto}
+            disabled={isLoading}
+            className='flex items-center space-x-2 rounded-lg bg-green-600 px-6 py-3 text-white hover:bg-green-700 disabled:opacity-50'
+          >
+            <Camera className='h-5 w-5' />
+            <span>Hızlı Çek</span>
+          </button>
+
+          <button
+            onClick={switchCamera}
+            className='flex items-center space-x-2 rounded-lg bg-gray-600 px-6 py-3 text-white hover:bg-gray-700'
+          >
+            <RotateCcw className='h-5 w-5' />
+            <span>Çevir</span>
+          </button>
+
+          <button onClick={stopCamera} className='rounded-lg bg-red-600 px-6 py-3 text-white hover:bg-red-700'>
+            <X className='h-5 w-5' />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (showFullscreenCamera) {
+    return (
+      <div className='fixed inset-0 z-50 bg-black'>
+        {/* Kamera */}
+        <div className='absolute inset-0'>
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className='h-full w-full object-cover'
+            style={{
+              transform: 'scaleX(-1)', // Ayna efekti
+              WebkitTransform: 'scaleX(-1)', // Safari desteği
+            }}
+          />
+          <canvas ref={canvasRef} className='hidden' />
+        </div>
+
+        {/* Kontrol Paneli */}
+        <div className='absolute right-0 bottom-0 flex h-full w-1/4 min-w-[130px] flex-col-reverse items-center justify-between bg-black/80 p-12 md:flex-col-reverse'>
+          {/* Kamera Değiştirme Butonu */}
+          <button
+            onClick={switchCamera}
+            className='flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30'
+          >
+            <RotateCcw className='h-6 w-6' />
+          </button>
+
+          {/* Fotoğraf Çekme Butonu */}
+          <button
+            onClick={capturePhoto}
+            disabled={isLoading}
+            className='flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-white/20 text-white hover:bg-white/30 disabled:opacity-50'
+          >
+            <Camera className='h-8 w-8' />
+          </button>
+
+          {/* İptal Butonu */}
+          <button
+            onClick={stopCamera}
+            className='flex h-10 w-10 items-center justify-center rounded-full bg-red-500/80 text-white hover:bg-red-500'
+          >
+            <X className='h-6 w-6' />
+          </button>
+        </div>
+
+        {/* Mobil için alt panel */}
+        <div className='absolute right-0 bottom-0 left-0 flex h-1/5 w-full items-center justify-between bg-black/80 p-4 md:hidden'>
+          <button
+            onClick={stopCamera}
+            className='flex h-12 w-12 items-center justify-center rounded-full bg-red-500/80 text-white'
+          >
+            <X className='h-6 w-6' />
+          </button>
+
+          <button
+            onClick={capturePhoto}
+            disabled={isLoading}
+            className='flex h-16 w-16 items-center justify-center rounded-full border-4 border-white bg-white/20 text-white hover:bg-white/30 disabled:opacity-50'
+          >
+            <Camera className='h-8 w-8' />
+          </button>
+
+          <button
+            onClick={switchCamera}
+            className='flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30'
+          >
+            <RotateCcw className='h-6 w-6' />
           </button>
         </div>
       </div>
