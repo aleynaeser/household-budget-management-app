@@ -1,4 +1,4 @@
-export const AI_PROMPT = `
+export const PDF_PROMPT = `
 Sen bir PDF analiz uzmanısın ve aynı zamanda aile bütçe yönetimi konusunda uzmansın.
 
 Sana verilen PDF içeriğinde, 3 aya ait bir ailenin kredi kartı harcamaları yer almaktadır. Bu verileri dikkatle analiz ederek, aile bütçesi perspektifinden detaylı ve anlaşılır bir değerlendirme yapmanı istiyorum.

@@ -20,9 +20,10 @@
     ],
     "paths": {
       "@providers/*": ["./src/providers/*"],
+      "@hooks/*": ["./src/hooks/*"],
       "@api/*": ["./src/app/api/*"],
-      "@actions/*": ["./src/actions/*"],
       "@components/*": ["./src/components/*"],
+      "@actions/*": ["./src/actions/*"],
       "@styles/*": ["./src/styles/*"],
       "@constants/*": ["./src/constants/*"],
       "@/*": ["./src/*"]

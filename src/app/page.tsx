@@ -1,10 +1,12 @@
 'use client';
 
 import { toast } from 'sonner';
+import Link from 'next/link';
 import { UploadButton } from '@uploadthing/react';
 import { useMutation } from '@tanstack/react-query';
 import { AppFileRouter } from '@api/uploadthing/core';
 import { handleUploadComplete } from '@actions/upload.action';
+import { Receipt } from 'lucide-react';
 
 export default function Home() {
   const { data, isPending, mutate } = useMutation({
@@ -18,9 +20,19 @@ export default function Home() {
           Household Budget Management <span className='font-bold'>with AI</span>
         </h1>
 
-        <h2 className='pt-4 pb-10 text-center text-lg font-extralight text-[var(--gray-light)]'>
+        <h2 className='pt-4 pb-6 text-center text-lg font-extralight text-[var(--gray-light)]'>
           <span className='font-bold'>Upload </span>your credit card statement
         </h2>
+
+        <div className='mb-8 flex justify-center'>
+          <Link
+            href='/receipt-analyze'
+            className='flex items-center space-x-2 rounded-lg bg-blue-600 px-6 py-3 text-white transition-colors hover:bg-blue-700'
+          >
+            <Receipt className='h-5 w-5' />
+            <span>Fiş Analizi Yap</span>
+          </Link>
+        </div>
 
         <div className='rounded-lg border-2 border-dashed border-[var(--black-light)] p-8 text-center'>
           <UploadButton<AppFileRouter, 'pdfUploader'>

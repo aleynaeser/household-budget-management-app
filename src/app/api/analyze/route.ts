@@ -1,6 +1,6 @@
 import pdf from 'pdf-parse';
 import { GoogleGenAI } from '@google/genai';
-import { AI_PROMPT } from '@constants/ai-prompt';
+import { PDF_PROMPT } from '@constants/pdf-prompt';
 import { NextRequest, NextResponse } from 'next/server';
 import { responseSchema } from '@constants/response-schema';
 
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       model: 'gemini-2.0-flash',
       contents: text,
       config: {
-        systemInstruction: AI_PROMPT,
+        systemInstruction: PDF_PROMPT,
         responseMimeType: 'application/json',
         responseSchema: responseSchema,
       },
