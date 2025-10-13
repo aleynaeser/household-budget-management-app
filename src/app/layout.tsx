@@ -47,7 +47,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           }}
         >
           <main
-            className={`relative z-10 mx-auto my-10 min-h-52 w-full max-w-2xl border border-[var(--black-light)] bg-[var(--black)] text-[var(--white)]`}
+            className={`relative z-10 mx-auto my-10 min-h-52 w-full max-w-2xl rounded-lg border border-[var(--black-light)] bg-[var(--black)] text-[var(--white)]`}
           >
             {children}
           </main>
