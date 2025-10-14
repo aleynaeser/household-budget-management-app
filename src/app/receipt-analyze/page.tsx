@@ -88,6 +88,7 @@ export default function ReceiptAnalyzePage() {
               >
                 Kapat
               </button>
+              
               <Camera
                 isFullscreen={true}
                 isMaxResolution={true}
@@ -107,11 +108,7 @@ export default function ReceiptAnalyzePage() {
       {imageUrl && !analysis && (
         <div className='mx-auto max-w-2xl space-y-6'>
           <div className='text-center'>
-            <img
-              src={imageUrl}
-              alt='Yüklenen fiş'
-              className='min-h-lg mx-auto h-auto max-w-full min-w-lg rounded-lg border border-gray-600'
-            />
+            <img src={imageUrl} alt='Yüklenen fiş' className='mx-auto h-auto max-w-full rounded-lg border border-gray-600' />
           </div>
 
           {isPending && (

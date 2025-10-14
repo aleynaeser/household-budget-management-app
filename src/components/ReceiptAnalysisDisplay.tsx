@@ -80,7 +80,7 @@ export function ReceiptAnalysisDisplay({ analysis, imageUrl, onReset }: ReceiptA
           <img
             src={imageUrl}
             alt='Analiz edilen fiş'
-            className='min-h-lg mx-auto h-auto max-w-full min-w-lg rounded-lg border border-gray-600'
+            className='mx-auto h-auto max-w-full rounded-lg border border-gray-600'
           />
         </div>
       )}
