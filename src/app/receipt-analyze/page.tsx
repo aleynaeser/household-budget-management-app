@@ -9,7 +9,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useLocalStorage } from '@hooks/useLocalStorage';
 import { handleImageUploadComplete } from '@actions/image-upload.action';
 import { ReceiptAnalysisDisplay } from '@components/ReceiptAnalysisDisplay';
-import Camera from 'react-html5-camera-photo';
+import Camera, { FACING_MODES } from 'react-html5-camera-photo';
 import 'react-html5-camera-photo/build/css/index.css';
 
 export default function ReceiptAnalyzePage() {
@@ -95,7 +95,7 @@ export default function ReceiptAnalyzePage() {
                 isMaxResolution={true}
                 isImageMirror={false}
                 isSilentMode={false}
-               
+                idealFacingMode={FACING_MODES.ENVIRONMENT}
                 onTakePhoto={(dataUri) => {
                   mutate([{ url: dataUri }]);
                   setShowCamera(false);
