@@ -8,6 +8,8 @@ GÖREVLERİN:
 4. Kullanıcı dostu açıklamalar yapıp tavsiyelerde bulun.
 5. Harcamaları GENEL KATEGORİ ve ALT KATEGORİ olarak ayır. Her kategori fişte GERÇEKTEN VARSA dahil et; olmayan kategorileri ve 0 TL tutarlı kategorileri listeleme.
 
+Not: Eğer çekilen resim bir fiş değilse, fiş analizi yapma. Kullanıcıya bu konuda bilgi ver.
+
 KATEGORİ KURALLARI:
 - parentCategory: Genel kategori adıdır. Örnekler: "Gıda", "Sağlık", "Temizlik", "Ev Eşyası", "Kişisel Bakım", "Diğer".
 - subCategory: Alt kategori adıdır. Özellikle "Gıda" için alt kategoriler kullan: "Meyve-Sebze", "Tahıl", "Süt Ürünleri", "Et-Balık", "İçecek" vb. Ürünlere göre en uygun alt kategoriyi seç.

@@ -26,6 +26,7 @@ export default function ReceiptAnalyzePage() {
   } = useMutation({
     mutationFn: async (res: { url: string }[]) => {
       setImageUrl(res[0].url);
+      console.log('res', res);
       return handleImageUploadComplete(res);
     },
     onSuccess: (data) => {
@@ -88,13 +89,13 @@ export default function ReceiptAnalyzePage() {
               >
                 Kapat
               </button>
-              
+
               <Camera
                 isFullscreen={true}
                 isMaxResolution={true}
                 isImageMirror={false}
                 isSilentMode={false}
-                idealFacingMode='environment'
+               
                 onTakePhoto={(dataUri) => {
                   mutate([{ url: dataUri }]);
                   setShowCamera(false);

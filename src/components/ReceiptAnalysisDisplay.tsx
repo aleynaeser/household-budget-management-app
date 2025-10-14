@@ -44,7 +44,7 @@ export function ReceiptAnalysisDisplay({ analysis, imageUrl, onReset }: ReceiptA
   return (
     <div className='mt-10 space-y-6'>
       {/* Header */}
-      <div className='flex items-center justify-between'>
+      <div className='flex-col items-center justify-between gap-4 lg:flex'>
         <h2 className='text-2xl font-bold text-white'>Analiz Sonuçları</h2>
 
         <div className='flex space-x-2'>

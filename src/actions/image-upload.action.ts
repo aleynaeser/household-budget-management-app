@@ -3,6 +3,8 @@
 export async function handleImageUploadComplete(res: { url: string }[]) {
   const imageUrl = res[0].url;
 
+  console.log('imageUrl', imageUrl);
+
   if (!imageUrl) return;
 
   try {
