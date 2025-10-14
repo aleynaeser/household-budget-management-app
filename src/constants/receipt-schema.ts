@@ -26,12 +26,13 @@ export const receiptAnalysisSchema: Schema = {
           items: {
             type: Type.OBJECT,
             properties: {
-              category: { type: Type.STRING },
+              parentCategory: { type: Type.STRING },
+              subCategory: { type: Type.STRING },
               amount: { type: Type.STRING },
               isMostCheap: { type: Type.BOOLEAN },
               isMostExpensive: { type: Type.BOOLEAN },
             },
-            propertyOrdering: ['category', 'amount', 'isMostCheap', 'isMostExpensive'],
+            propertyOrdering: ['parentCategory', 'subCategory', 'amount', 'isMostCheap', 'isMostExpensive'],
           },
         },
       },

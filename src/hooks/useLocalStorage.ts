@@ -68,7 +68,8 @@ export function useLocalStorage() {
       receipt.analysis.receiptAnalyze.expenses.forEach((expense) => {
         const amount = parseFloat(expense.amount.replace(/[^\d.,]/g, '').replace(',', '.'));
         if (!isNaN(amount)) {
-          categoryTotals[expense.category] = (categoryTotals[expense.category] || 0) + amount;
+          const key = expense.parentCategory || 'Diğer';
+          categoryTotals[key] = (categoryTotals[key] || 0) + amount;
         }
       });
     });

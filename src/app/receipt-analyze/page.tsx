@@ -2,156 +2,129 @@
 
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { UploadButton } from '@uploadthing/react';
 import { Loader2 } from 'lucide-react';
-
+import { UploadButton } from '@uploadthing/react';
 import { AppFileRouter } from '@api/uploadthing/core';
-import { useReceiptAnalysis } from '@hooks/useReceiptAnalysis';
+import { useMutation } from '@tanstack/react-query';
 import { useLocalStorage } from '@hooks/useLocalStorage';
-import { CameraUpload } from '@components/CameraUpload';
+import { handleImageUploadComplete } from '@actions/image-upload.action';
 import { ReceiptAnalysisDisplay } from '@components/ReceiptAnalysisDisplay';
+import Camera from 'react-html5-camera-photo';
+import 'react-html5-camera-photo/build/css/index.css';
 
 export default function ReceiptAnalyzePage() {
-  const [state, setState] = useState<IReceiptAnalysisState>({
-    isLoading: false,
-    imageUrl: null,
-    analysis: null,
-    error: null,
-  });
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [showCamera, setShowCamera] = useState(false);
 
-  const { analyzeReceipt } = useReceiptAnalysis();
   const { saveReceiptData } = useLocalStorage();
 
-  const handleUploadComplete = async (res: { url: string }[]) => {
-    try {
-      setState((prev) => ({ ...prev, isLoading: true, error: null }));
+  const {
+    data: analysis,
+    isPending,
+    mutate,
+    reset,
+  } = useMutation({
+    mutationFn: async (res: { url: string }[]) => {
+      setImageUrl(res[0].url);
+      return handleImageUploadComplete(res);
+    },
+    onSuccess: (data) => {
+      const payload = {
+        id: data?.receiptAnalyze?.id || `fis-${Date.now()}`,
+        timestamp: Date.now(),
+        imageUrl: imageUrl ?? '',
+        analysis: data,
+      } as ILocalReceiptData;
 
-      const imageUrl = res[0].url;
-      setState((prev) => ({ ...prev, imageUrl }));
-
-      // Analyze the receipt
-      const analysis = await analyzeReceipt(imageUrl);
-
-      if (analysis) {
-        setState((prev) => ({ ...prev, analysis, isLoading: false }));
-
-        // Save to local storage
-        const receiptData: ILocalReceiptData = {
-          id: analysis.receiptAnalyze.id,
-          timestamp: Date.now(),
-          imageUrl: imageUrl,
-          analysis,
-        };
-
-        saveReceiptData(receiptData);
-        toast.success('Fiş analizi tamamlandı ve kaydedildi!');
-      }
-    } catch (error) {
-      console.error('Analiz hatası:', error);
-      setState((prev) => ({
-        ...prev,
-        isLoading: false,
-        error: error instanceof Error ? error.message : 'Bilinmeyen hata',
-      }));
-      toast.error('Fiş analizi sırasında bir hata oluştu');
-    }
-  };
-
-  const handleImageCapture = async (imageFile: File) => {
-    // For camera capture, we'll use UploadButton programmatically
-    // This is a simplified approach - in production you might want to handle this differently
-    const formData = new FormData();
-    formData.append('file', imageFile);
-
-    try {
-      const response = await fetch('/api/uploadthing', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const result = await response.json();
-      if (result.url) {
-        await handleUploadComplete([{ url: result.url }]);
-      }
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error('Resim yüklenirken hata oluştu');
-    }
-  };
-
-  const handleImageUpload = async (imageFile: File) => {
-    await handleImageCapture(imageFile);
-  };
+      saveReceiptData(payload);
+    },
+  });
 
   const resetState = () => {
-    setState({
-      isLoading: false,
-      imageUrl: null,
-      analysis: null,
-      error: null,
-    });
+    setImageUrl(null);
+    reset();
   };
 
   return (
     <section className='p-6'>
       <div className='mb-8 text-center'>
-        <h1 className='mb-2 text-3xl font-bold text-white'>Fiş Analizi</h1>
-        <p className='text-gray-400'>Kamera ile fiş fotoğrafı çekin veya dosya yükleyin</p>
+        <h1 className='mb-2 text-3xl font-bold text-white'>Receipt Analyzer</h1>
+        <p className='text-gray-400'>Take a photo of your receipt or upload a file</p>
       </div>
 
-      {!state.imageUrl && !state.analysis && (
+      {!imageUrl && !analysis && (
         <div className='mx-auto max-w-2xl space-y-6'>
-          <CameraUpload onImageCapture={handleImageCapture} onImageUpload={handleImageUpload} isLoading={state.isLoading} />
-
           <div className='text-center'>
-            <p className='mb-4 text-gray-400'>veya</p>
             <div className='rounded-lg border-2 border-dashed border-[var(--black-light)] p-8'>
-              <UploadButton<AppFileRouter, 'imageUploader'>
-                endpoint={(route) => route.imageUploader}
-                onClientUploadComplete={handleUploadComplete}
-                appearance={{
-                  allowedContent: 'pt-6 flex h-8 flex-col items-center justify-center px-2 text-white',
-                }}
-                onUploadError={(error: Error) => {
-                  toast.error(`Yükleme hatası: ${error.message}`);
+              <div className='flex flex-col items-center justify-center gap-4 md:flex-row'>
+                <UploadButton<AppFileRouter, 'imageUploader'>
+                  endpoint={(route) => route.imageUploader}
+                  onClientUploadComplete={mutate}
+                  appearance={{
+                    allowedContent: 'pt-6 flex h-8 flex-col items-center justify-center px-2 text-white',
+                  }}
+                  onUploadError={(error: Error) => {
+                    toast.error(`Yükleme hatası: ${error.message}`);
+                  }}
+                />
+
+                <div className='text-gray-400 mx-4'>or</div>
+
+                <button
+                  onClick={() => setShowCamera(true)}
+                  className='rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700'
+                >
+                  Kamerayı Aç 
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {showCamera && (
+            <div className='fixed inset-0 z-50 bg-black'>
+              <button
+                onClick={() => setShowCamera(false)}
+                className='absolute top-4 right-4 z-10 rounded-md bg-white/20 px-3 py-1 text-white hover:bg-white/30'
+              >
+                Kapat
+              </button>
+              <Camera
+                isFullscreen={true}
+                isMaxResolution={true}
+                isImageMirror={false}
+                isSilentMode={false}
+                onTakePhoto={(dataUri) => {
+                  mutate([{ url: dataUri }]);
+                  setShowCamera(false);
                 }}
               />
             </div>
-          </div>
+          )}
         </div>
       )}
 
-      {state.imageUrl && !state.analysis && (
+      {imageUrl && !analysis && (
         <div className='mx-auto max-w-2xl space-y-6'>
           <div className='text-center'>
             <img
-              src={state.imageUrl}
+              src={imageUrl}
               alt='Yüklenen fiş'
-              className='mx-auto h-auto max-w-full rounded-lg border border-gray-600'
+              className='min-h-lg mx-auto h-auto max-w-full min-w-lg rounded-lg border border-gray-600'
             />
           </div>
 
-          {state.isLoading && (
+          {isPending && (
             <div className='py-8 text-center'>
               <Loader2 className='mx-auto mb-4 h-8 w-8 animate-spin text-blue-500' />
               <p className='text-gray-400'>Fiş analiz ediliyor...</p>
             </div>
           )}
-
-          {state.error && (
-            <div className='py-8 text-center'>
-              <p className='mb-4 text-red-500'>{state.error}</p>
-              <button onClick={resetState} className='rounded-lg bg-gray-700 px-4 py-2 text-white hover:bg-gray-600'>
-                Tekrar Dene
-              </button>
-            </div>
-          )}
         </div>
       )}
 
-      {state.analysis && (
+      {analysis && (
         <div className='mx-auto max-w-4xl'>
-          <ReceiptAnalysisDisplay analysis={state.analysis} imageUrl={state.imageUrl} onReset={resetState} />
+          <ReceiptAnalysisDisplay analysis={analysis} imageUrl={imageUrl} onReset={resetState} />
         </div>
       )}
     </section>

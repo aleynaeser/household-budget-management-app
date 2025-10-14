@@ -2,11 +2,12 @@ export default {};
 
 declare global {
   type TExpense = {
-    category: string;
+    parentCategory: string;
+    subCategory: string;
     amount: string;
     isMostCheap?: boolean;
     isMostExpensive?: boolean;
-  }
+  };
 
   interface IReceiptAnalyze {
     id: string;
@@ -39,9 +40,12 @@ declare global {
   }
 
   interface IReceiptAnalysisState {
-    isLoading: boolean;
     imageUrl: string | null;
     analysis: IReceiptAnalysisResponse | null;
-    error: string | null;
   }
+
+  type ResponseSchema = {
+    title: string;
+    content: string[];
+  };
 }

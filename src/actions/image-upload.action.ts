@@ -1,19 +1,24 @@
 'use server';
 
-import { UploadThingError } from 'uploadthing/server';
-
 export async function handleImageUploadComplete(res: { url: string }[]) {
+  const imageUrl = res[0].url;
+
+  if (!imageUrl) return;
+
   try {
-    if (!res || res.length === 0) {
-      throw new Error('Resim yüklenemedi');
-    }
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/receipt-analyze`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ imageUrl }),
+    });
 
-    const imageUrl = res[0].url;
+    const data = await response.json();
+    const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
 
-    // Resim URL'ini döndür
-    return { url: imageUrl };
+    return parsedData as IReceiptAnalysisResponse;
   } catch (error) {
-    console.error('Resim yükleme hatası:', error);
-    throw new UploadThingError('Resim yüklenirken bir hata oluştu');
+    throw new Error(`Upload error: ${error}`);
   }
 }

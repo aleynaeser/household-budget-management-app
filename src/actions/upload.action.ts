@@ -1,9 +1,6 @@
 'use server';
 
-type ResponseSchema = {
-  title: string;
-  content: string[];
-};
+ 
 
 export const handleUploadComplete = async (res: { url: string }[]): Promise<ResponseSchema[] | undefined> => {
   const fileUrl = res[0].url;

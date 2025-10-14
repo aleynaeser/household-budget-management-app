@@ -21,6 +21,7 @@
     "pdf-parse": "^1.1.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-html5-camera-photo": "^1.5.11",
     "sonner": "^2.0.3",
     "uploadthing": "^7.7.2"
   },
@@ -31,6 +32,7 @@
     "@types/pdf-parse": "^1.1.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/react-html5-camera-photo": "^1.5.4",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
     "prettier": "^3.5.3",
