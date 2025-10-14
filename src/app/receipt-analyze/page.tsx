@@ -25,8 +25,12 @@ export default function ReceiptAnalyzePage() {
     reset,
   } = useMutation({
     mutationFn: async (res: { url: string }[]) => {
-      setImageUrl(res[0].url);
-      console.log('res', res);
+      const imageUrl = res[0]?.url;
+      if (!imageUrl) {
+        throw new Error("Resim URL'i bulunamadı");
+      }
+      setImageUrl(imageUrl);
+      console.log('Processing image:', imageUrl.substring(0, 50) + '...');
       return handleImageUploadComplete(res);
     },
     onSuccess: (data) => {
@@ -101,6 +105,11 @@ export default function ReceiptAnalyzePage() {
                 isSilentMode={false}
                 idealFacingMode={FACING_MODES.ENVIRONMENT}
                 onTakePhoto={(dataUri) => {
+                  console.log('Camera photo taken:', dataUri.substring(0, 50) + '...');
+                  if (!dataUri || !dataUri.startsWith('data:')) {
+                    toast.error('Fotoğraf çekilemedi');
+                    return;
+                  }
                   mutate([{ url: dataUri }]);
                   setShowCamera(false);
                 }}
