@@ -1,7 +1,5 @@
 'use server';
 
- 
-
 export const handleUploadComplete = async (res: { url: string }[]): Promise<ResponseSchema[] | undefined> => {
   const fileUrl = res[0].url;
 
@@ -19,7 +17,6 @@ export const handleUploadComplete = async (res: { url: string }[]): Promise<Resp
     const data = await response.json();
     const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
 
-   
     return parsedData as ResponseSchema[];
   } catch (error) {
     throw new Error(`Upload error: ${error}`);

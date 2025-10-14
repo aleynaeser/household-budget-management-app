@@ -39,8 +39,6 @@ export function ReceiptAnalysisDisplay({ analysis, imageUrl, onReset }: ReceiptA
     return colors[category] || 'bg-gray-500';
   };
 
-  console.log(imageUrl);
-
   return (
     <div className='mt-10 space-y-6'>
       {/* Header */}

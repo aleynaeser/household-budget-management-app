@@ -9,7 +9,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useLocalStorage } from '@hooks/useLocalStorage';
 import { handleImageUploadComplete } from '@actions/image-upload.action';
 import { ReceiptAnalysisDisplay } from '@components/ReceiptAnalysisDisplay';
-import Camera, { FACING_MODES, IMAGE_TYPES } from 'react-html5-camera-photo';
+import Camera, { FACING_MODES } from 'react-html5-camera-photo';
 import 'react-html5-camera-photo/build/css/index.css';
 
 export default function ReceiptAnalyzePage() {
@@ -30,7 +30,6 @@ export default function ReceiptAnalyzePage() {
         throw new Error("Resim URL'i bulunamadı");
       }
       setImageUrl(imageUrl);
-      console.log('Processing image:', imageUrl.substring(0, 50) + '...');
       return handleImageUploadComplete(res);
     },
     onSuccess: (data) => {
@@ -53,6 +52,8 @@ export default function ReceiptAnalyzePage() {
     setImageUrl(null);
     reset();
   };
+
+  console.log('analysis', imageUrl);
 
   return (
     <section className='p-6'>
@@ -100,17 +101,9 @@ export default function ReceiptAnalyzePage() {
 
               <Camera
                 isFullscreen={true}
-                isMaxResolution={true}
                 isImageMirror={false}
-                isSilentMode={false}
-                imageType={IMAGE_TYPES.JPG}
                 idealFacingMode={FACING_MODES.ENVIRONMENT}
                 onTakePhoto={(dataUri) => {
-                  console.log('Camera photo taken:', dataUri.substring(0, 50) + '...');
-                  if (!dataUri || !dataUri.startsWith('data:')) {
-                    toast.error('Fotoğraf çekilemedi');
-                    return;
-                  }
                   mutate([{ url: dataUri }]);
                   setShowCamera(false);
                 }}
@@ -123,15 +116,7 @@ export default function ReceiptAnalyzePage() {
       {imageUrl && !analysis && (
         <div className='mx-auto max-w-2xl space-y-6'>
           <div className='text-center'>
-            <img
-              src={imageUrl}
-              alt='Yüklenen fiş'
-              className='mx-auto h-auto max-w-full rounded-lg border border-gray-600'
-              onError={(e) => {
-                console.error('Image load error:', e);
-                toast.error('Resim yüklenemedi');
-              }}
-            />
+            <img src={imageUrl} alt='Yüklenen fiş' className='mx-auto h-auto max-w-full rounded-lg border border-gray-600' />
           </div>
 
           {isPending && (
