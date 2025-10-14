@@ -16,11 +16,16 @@ export async function handleImageUploadComplete(res: { url: string }[]) {
       body: JSON.stringify({ imageUrl }),
     });
 
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
     const data = await response.json();
     const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
 
     return parsedData as IReceiptAnalysisResponse;
   } catch (error) {
+    console.error('Image upload error:', error);
     throw new Error(`Upload error: ${error}`);
   }
 }

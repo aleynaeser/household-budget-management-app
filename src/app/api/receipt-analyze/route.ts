@@ -14,13 +14,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Resim URL'i gerekli" }, { status: 400 });
     }
 
-    // Fetch the image
-    const response = await fetch(imageUrl);
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    let base64Image: string;
 
-    // Convert to base64 for Gemini
-    const base64Image = buffer.toString('base64');
+    // Check if it's a data URI (from camera capture)
+    if (imageUrl.startsWith('data:')) {
+      // Extract base64 data from data URI
+      const base64Data = imageUrl.split(',')[1];
+      base64Image = base64Data;
+    } else {
+      // Fetch the image from URL
+      const response = await fetch(imageUrl);
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      base64Image = buffer.toString('base64');
+    }
 
     const result = await genai.models.generateContent({
       model: 'gemini-2.0-flash',

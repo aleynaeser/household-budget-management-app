@@ -39,6 +39,10 @@ export default function ReceiptAnalyzePage() {
 
       saveReceiptData(payload);
     },
+    onError: (error) => {
+      console.error('Analysis error:', error);
+      toast.error(`Analiz hatası: ${error.message}`);
+    },
   });
 
   const resetState = () => {
@@ -109,7 +113,15 @@ export default function ReceiptAnalyzePage() {
       {imageUrl && !analysis && (
         <div className='mx-auto max-w-2xl space-y-6'>
           <div className='text-center'>
-            <img src={imageUrl} alt='Yüklenen fiş' className='mx-auto h-auto max-w-full rounded-lg border border-gray-600' />
+            <img
+              src={imageUrl}
+              alt='Yüklenen fiş'
+              className='mx-auto h-auto max-w-full rounded-lg border border-gray-600'
+              onError={(e) => {
+                console.error('Image load error:', e);
+                toast.error('Resim yüklenemedi');
+              }}
+            />
           </div>
 
           {isPending && (
