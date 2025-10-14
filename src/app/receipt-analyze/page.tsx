@@ -68,13 +68,13 @@ export default function ReceiptAnalyzePage() {
                   }}
                 />
 
-                <div className='text-gray-400 mx-4'>or</div>
+                <div className='mx-4 text-gray-400'>or</div>
 
                 <button
                   onClick={() => setShowCamera(true)}
                   className='rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700'
                 >
-                  Kamerayı Aç 
+                  Kamerayı Aç
                 </button>
               </div>
             </div>
@@ -93,6 +93,7 @@ export default function ReceiptAnalyzePage() {
                 isMaxResolution={true}
                 isImageMirror={false}
                 isSilentMode={false}
+                idealFacingMode='environment'
                 onTakePhoto={(dataUri) => {
                   mutate([{ url: dataUri }]);
                   setShowCamera(false);
